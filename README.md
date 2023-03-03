@@ -59,7 +59,7 @@ public class AccountTriggerHandler extends TriggerHandler {
 
 After creating handler class you need to create Tirgger_Handler__mdt record for that handler with object name and trigger actions for which you want to execute your trigger
 
-[![Trigger Handler Record Detail](/Assets/Trigger_Handler_Detail.png)]
+![Trigger Handler Record Detail](/Assets/Trigger_Handler_Detail.png)
 
 To use the trigger handler, you only need to construct an instance of your trigger handler and call the `run()` method. Here is an example of the Account trigger.
 
