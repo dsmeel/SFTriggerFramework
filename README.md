@@ -61,7 +61,7 @@ After creating handler class you need to create Tirgger_Handler__mdt record for 
 
 ![Trigger Handler Record Detail](/Assets/Trigger_Handler_Detail.png)
 
-To use the trigger handler, you only need to construct an instance of your trigger handler and call the `run()` method. Here is an example of the Account trigger.
+To use the trigger handler, you need to construct an instance of TtriggerHandler and call the `run()` method. Here is an example of the Account trigger.
 
 ```java
 trigger AccountTrigger on Account (before insert, before update, before delete, after insert, after update, after delete, after undelete) {
