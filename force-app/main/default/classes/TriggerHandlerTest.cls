@@ -1,3 +1,9 @@
+/**
+ * @description this is the test class for TriggerHandler
+ * @author Dharmendra Singh
+ * @date 3 March 2023
+ * 
+ */ 
 @isTest
 private class TriggerHandlerTest {
     
@@ -157,14 +163,14 @@ private class TriggerHandlerTest {
         handler.clearMaxLoopCount();
         
         /*try {
-            // re-run the handler. We shouldn't throw now.
-            handler.run();
-            System.assertEquals('beforeInsert', lastMethodCalled, 'last method should be beforeInsert');
-        } catch(TriggerHandler.TriggerHandlerException te) {
-            System.assert(false, 'running the handler after clearing the loop count should not throw');
-        } catch(Exception e) {  
-            System.assert(false, 'the exception thrown was not expected: ' + e.getTypeName() + ': ' + e.getMessage());
-        }*/
+// re-run the handler. We shouldn't throw now.
+handler.run();
+System.assertEquals('beforeInsert', lastMethodCalled, 'last method should be beforeInsert');
+} catch(TriggerHandler.TriggerHandlerException te) {
+System.assert(false, 'running the handler after clearing the loop count should not throw');
+} catch(Exception e) {  
+System.assert(false, 'the exception thrown was not expected: ' + e.getTypeName() + ': ' + e.getMessage());
+}*/
     }
     
     @isTest

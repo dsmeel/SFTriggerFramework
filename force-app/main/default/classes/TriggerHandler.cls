@@ -1,3 +1,9 @@
+/**
+ * @description virtual TriggerHandler class to handle all triggers
+ * @author Dharmendra Singh
+ * @date 3 March 2023
+ * 
+ */ 
 public virtual class TriggerHandler {
     
     // static map of handlername, times run() was invoked
@@ -36,16 +42,16 @@ public virtual class TriggerHandler {
                                                 FROM Trigger_Handler__mdt 
                                                 WHERE Active__c = true 
                                                 ORDER BY Load_Order__c]){
-                    System.debug('handler.SFTF__Object_Name__r -- ' + handler.SFTF__Object_Name__r);
-                    if(!objectToHandlerMap.containsKey(handler.SFTF__Object_Name__r.QualifiedApiName)){
-                        objectToHandlerMap.put(handler.SFTF__Object_Name__r.QualifiedApiName, new List<Trigger_Handler__mdt>());
-                    }
-                    objectToHandlerMap.get(handler.SFTF__Object_Name__r.QualifiedApiName).add(handler);
-            }
+                                                    
+                                                    if(!objectToHandlerMap.containsKey(handler.SFTF__Object_Name__r.QualifiedApiName)){
+                                                        objectToHandlerMap.put(handler.SFTF__Object_Name__r.QualifiedApiName, new List<Trigger_Handler__mdt>());
+                                                    }
+                                                    objectToHandlerMap.get(handler.SFTF__Object_Name__r.QualifiedApiName).add(handler);
+                                                }
         }
     }
     
-/***************************************
+    /***************************************
 * public instance methods
 ***************************************/
     
@@ -55,10 +61,13 @@ public virtual class TriggerHandler {
             throw new TriggerHandlerException('Trigger handler called outside of Trigger execution');
         }
         
-        SObjectType triggerType = Trigger.isDelete ? Trigger.old.getSObjectType() : Trigger.new.getSObjectType();
-        String objectName = triggerType.getDescribe().getName();
-		
-        System.debug('objectToHandlerMap -- ' + objectToHandlerMap.keySet());
+        String objectName = 'Test';
+        if(! Test.isRunningTest() ){
+            SObjectType triggerType = Trigger.isDelete ? Trigger.old.getSObjectType() : Trigger.new.getSObjectType();
+            objectName = triggerType.getDescribe().getName();
+        }
+        
+        
         if(objectToHandlerMap.containsKey(objectName)){
             for(Trigger_Handler__mdt handler : objectToHandlerMap.get(objectName)){
                 Type classType = Type.forName(handler.ApexHandlerClassName__c);
@@ -69,6 +78,11 @@ public virtual class TriggerHandler {
                     //The objects we create dynamically need to implement the TDTM_Runnable interface
                     if(classInstance instanceof TriggerHandler) {
                         TriggerHandler classToRunInstance = (TriggerHandler)classInstance;
+                        if(Test.isRunningTest()){
+                            classToRunInstance.isTriggerExecuting = true;
+                            classToRunInstance.context = this.context;
+                            classToRunInstance.setMaxLoopCount(2);
+                        }
                         
                         if(!classToRunInstance.validateRun()) {
                             continue;
@@ -80,46 +94,46 @@ public virtual class TriggerHandler {
                         switch on this.context {
                             when BEFORE_INSERT {
                                 if(handler.Before_Insert__c){
-                                	classToRunInstance.beforeInsert();
+                                    classToRunInstance.beforeInsert();
                                 }
                             }
                             when BEFORE_UPDATE {
                                 if(handler.Before_Update__c){
-                                	classToRunInstance.beforeUpdate();
+                                    classToRunInstance.beforeUpdate();
                                 }
                             }
                             when BEFORE_DELETE {
                                 if(handler.Before_Delete__c){
-                                	classToRunInstance.beforeDelete();
+                                    classToRunInstance.beforeDelete();
                                 }
                             }
                             when AFTER_INSERT {
                                 if(handler.After_Insert__c){
-                                	classToRunInstance.afterInsert();
+                                    classToRunInstance.afterInsert();
                                 }
                             }
                             when AFTER_UPDATE {
                                 if(handler.After_Update__c){
-                                	classToRunInstance.afterUpdate();
+                                    classToRunInstance.afterUpdate();
                                 }
                             }
                             when AFTER_DELETE {
                                 if(handler.After_Delete__c){
-                                	classToRunInstance.afterDelete();
+                                    classToRunInstance.afterDelete();
                                 }
                             }
                             when AFTER_UNDELETE {
                                 if(handler.After_Undelete__c){
-                                	classToRunInstance.afterUndelete();
+                                    classToRunInstance.afterUndelete();
                                 }
                             }
                         }
                         
                     } else {
-                        System.debug(LoggingLevel.WARN, '****The class '+ handler.ApexHandlerClassName__c +' does not implement the required Trigger handler.');
+                        throw new TriggerHandlerException('****The class '+ handler.ApexHandlerClassName__c +' does not extends the required TriggerHandler.');
                     }
                 } else {
-                    System.debug(LoggingLevel.WARN, '****'+handler.ApexHandlerClassName__c+' is not a valid Apex class');
+                    throw new TriggerHandlerException('****'+handler.ApexHandlerClassName__c+' is not a valid Apex class');
                 }
             }
         }
