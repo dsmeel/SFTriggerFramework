@@ -43,10 +43,10 @@ public virtual class TriggerHandler {
                                                 WHERE Active__c = true 
                                                 ORDER BY Load_Order__c]){
                                                     
-                                                    if(!objectToHandlerMap.containsKey(handler.SFTF__Object_Name__r.QualifiedApiName)){
-                                                        objectToHandlerMap.put(handler.SFTF__Object_Name__r.QualifiedApiName, new List<Trigger_Handler__mdt>());
+                                                    if(!objectToHandlerMap.containsKey(handler.Object_Name__r.QualifiedApiName)){
+                                                        objectToHandlerMap.put(handler.Object_Name__r.QualifiedApiName, new List<Trigger_Handler__mdt>());
                                                     }
-                                                    objectToHandlerMap.get(handler.SFTF__Object_Name__r.QualifiedApiName).add(handler);
+                                                    objectToHandlerMap.get(handler.Object_Name__r.QualifiedApiName).add(handler);
                                                 }
         }
     }
