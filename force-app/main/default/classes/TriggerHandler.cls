@@ -8,7 +8,7 @@ public virtual class TriggerHandler {
     
     // static map of handlername, times run() was invoked
     private static Map<String, LoopCount> loopCountMap;
-    private static Set<String> bypassedHandlers;
+    private static Map<String,Set<TriggerContext>> bypassedHandlers;
     
     @TestVisible
     private static Map<String, List<Trigger_Handler__mdt>> objectToHandlerMap;
@@ -24,7 +24,7 @@ public virtual class TriggerHandler {
     // static initialization
     static {
         loopCountMap = new Map<String, LoopCount>();
-        bypassedHandlers = new Set<String>();
+        bypassedHandlers = new Map<String,Set<TriggerContext>>() ;
         objectToHandlerMap = new Map<String, List<Trigger_Handler__mdt>>();
     }
     
@@ -43,10 +43,10 @@ public virtual class TriggerHandler {
                                                 WHERE Active__c = true 
                                                 ORDER BY Load_Order__c]){
                                                     
-                                                    if(!objectToHandlerMap.containsKey(handler.SFTF__Object_Name__r.QualifiedApiName)){
-                                                        objectToHandlerMap.put(handler.SFTF__Object_Name__r.QualifiedApiName, new List<Trigger_Handler__mdt>());
+                                                    if(!objectToHandlerMap.containsKey(handler.Object_Name__r.QualifiedApiName)){
+                                                        objectToHandlerMap.put(handler.Object_Name__r.QualifiedApiName, new List<Trigger_Handler__mdt>());
                                                     }
-                                                    objectToHandlerMap.get(handler.SFTF__Object_Name__r.QualifiedApiName).add(handler);
+                                                    objectToHandlerMap.get(handler.Object_Name__r.QualifiedApiName).add(handler);
                                                 }
         }
     }
@@ -159,7 +159,7 @@ public virtual class TriggerHandler {
 ***************************************/
     
     public static void bypass(String handlerName) {
-        TriggerHandler.bypassedHandlers.add(handlerName);
+        TriggerHandler.bypassedHandlers.put(handlerName, new Set<TriggerContext>(TriggerContext.values()));
     }
     
     public static void clearBypass(String handlerName) {
@@ -167,11 +167,31 @@ public virtual class TriggerHandler {
     }
     
     public static Boolean isBypassed(String handlerName) {
-        return TriggerHandler.bypassedHandlers.contains(handlerName);
+        return TriggerHandler.bypassedHandlers.containsKey(handlerName);
     }
     
     public static void clearAllBypasses() {
         TriggerHandler.bypassedHandlers.clear();
+    }
+
+    public static void bypassContext(String handlerName,TriggerContext contextToBypass) {
+        if(!TriggerHandler.bypassedHandlers.containsKey(handlerName)){
+            TriggerHandler.bypassedHandlers.put(handlerName, new Set<TriggerContext>());
+        }
+        TriggerHandler.bypassedHandlers.get(handlerName).add(contextToBypass);        
+    }
+
+    public static void clearBypassContext(String handlerName ,TriggerContext bypassContext) {
+        if(TriggerHandler.bypassedHandlers.containsKey(handlerName)){
+            TriggerHandler.bypassedHandlers.get(handlerName).remove(bypassContext);  
+            if(TriggerHandler.bypassedHandlers.get(handlerName).isEmpty()){
+                TriggerHandler.bypassedHandlers.remove(handlerName);
+            }
+        }
+    }
+
+    public static Boolean isBypassedContext(String handlerName,TriggerContext bypassContext) {
+        return (TriggerHandler.bypassedHandlers.containsKey(handlerName) && TriggerHandler.bypassedHandlers.get(handlerName).contains(bypassContext));
     }
     
     /***************************************
@@ -228,7 +248,7 @@ public virtual class TriggerHandler {
         if(!this.isTriggerExecuting || this.context == null) {
             throw new TriggerHandlerException('Trigger handler called outside of Trigger execution');
         }
-        return !TriggerHandler.bypassedHandlers.contains(getHandlerName());
+        return ! (TriggerHandler.bypassedHandlers.containsKey(getHandlerName()) && TriggerHandler.bypassedHandlers.get(getHandlerName()).contains(this.context)) ;
     }
     
     @TestVisible
@@ -300,7 +320,7 @@ public virtual class TriggerHandler {
     
     // possible trigger contexts
     @TestVisible
-    private enum TriggerContext {
+    public enum TriggerContext {
         BEFORE_INSERT, BEFORE_UPDATE, BEFORE_DELETE,
             AFTER_INSERT, AFTER_UPDATE, AFTER_DELETE,
             AFTER_UNDELETE
