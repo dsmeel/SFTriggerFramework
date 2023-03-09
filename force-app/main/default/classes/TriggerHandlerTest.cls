@@ -127,6 +127,10 @@ private class TriggerHandlerTest {
         System.assertEquals('afterUpdate', lastMethodCalled, 'last method called should be afterUpdate');
         System.assertEquals(false, TriggerHandler.isBypassed('TestHandler'), 'test handler should be bypassed');
         resetTest();
+        
+        TriggerHandler.bypassContext('TestHandler', TriggerHandler.TriggerContext.BEFORE_INSERT);
+        TriggerHandler.clearBypassContext('TestHandler', TriggerHandler.TriggerContext.BEFORE_INSERT);
+        TriggerHandler.isBypassedContext('TestHandler', TriggerHandler.TriggerContext.BEFORE_INSERT);
     }
     
     // instance method tests
