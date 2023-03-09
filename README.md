@@ -116,11 +116,25 @@ public class OpportunityTriggerHandler extends TriggerHandler {
 
 }
 ```
+use below code if you want to bypass only specific context
 
-If you need to check if a handler is bypassed, use the `isBypassed` method:
+```java
+// bypass
+TriggerHandler.bypassContext('AccountTriggerHandler', TriggerHandler.TriggerContext.AFTER_UPDATE);
+
+// clear context
+TriggerHandler.clearBypassContext('AccountTriggerHandler',TriggerHandler.TriggerContext.AFTER_UPDATE);
+```
+
+
+If you need to check if a handler is bypassed, use the `isBypassed` and `isBypassedContext` method:
 
 ```java
 if (TriggerHandler.isBypassed('AccountTriggerHandler')) {
+  // ... do something if the Account trigger handler is bypassed!
+}
+
+if (TriggerHandler.isBypassedContext('AccountTriggerHandler', TriggerHandler.TriggerContext.AFTER_UPDATE)) {
   // ... do something if the Account trigger handler is bypassed!
 }
 ```
@@ -134,6 +148,15 @@ TriggerHandler.clearAllBypasses();
 
 // ... now handlers won't be ignored!
 ```
+
+Avaliable trigger Context
+* `TriggerHandler.TriggerContext.BEFORE_INSERT`
+* `TriggerHandler.TriggerContext.BEFORE_UPDATE`
+* `TriggerHandler.TriggerContext.BEFORE_DELETE`
+* `TriggerHandler.TriggerContext.AFTER_INSERT`
+* `TriggerHandler.TriggerContext.AFTER_UPDATE`
+* `TriggerHandler.TriggerContext.AFTER_DELETE`
+* `TriggerHandler.TriggerContext.AFTER_UNDELETE`
 
 ## Overridable Methods
 
